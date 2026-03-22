@@ -1,53 +1,64 @@
 # LapTracker Service
 
-## Project Overview
-- Language: Java 21
-- Framework: Spring Boot 4.0.0
-- Build Tool: Maven
-## Key Configuration
-- dependencies including:
-  - spring-boot-starter-web
-  - spring-boot-starter-data-jpa (Persistence)
-  - postgresql (Database driver)
-  - flyway-core (Database migration)
-  - lombok (Boilerplate reduction)
-  - testcontainers (Integration testing with PostgreSQL)
+A Spring Boot application for tracking kart race laps, recording passage times, and calculating race results.
 
-## Main topics:
-- 5 drivers
-- fixed number of laps (driving from the start/finish line to the start/finish line).
-- timing system receives info each time driver passes start/finish line: retrieved info kart number + instant
-- race is finished when drivers complete all laps
-- winner: driver with fastest lap
+## Tech Stack
+*   **Java 21**
+*   **Spring Boot 4.0.4+** (Web, Data JPA, AMQP)
+*   **PostgreSQL** (Database)
+*   **RabbitMQ** (Message Queue for async processing)
+*   **Docker & Docker Compose** to support DB and RabbitMQ
 
-## Features:
-- Start race
-- Finish race
-- get winning results of the most recent race: 
-  - kart number
-  - Fastest Lap
-    - lap duration (finish - start time)
-    - lap number
-    - start time
+## Prerequisites
+*   Docker & Docker Compose
+*   Java 21 (for local development)
+*   Maven
+
+## How to Run
+
+### Option 1: Docker (Recommended)
+Run the entire stack (App, DB, RabbitMQ) with a single command:
+
+```bash
+docker-compose up --build
+```
+
+The application will be available at `http://localhost:8080`.
+
+### Option 2: Local Development
+1.  Start dependencies (PostgreSQL & RabbitMQ):
+    ```bash
+    docker-compose up db rabbitmq -d
+    ```
+2.  Run the application:
+    ```bash
+    ./mvnw spring-boot:run
+    ```
+
+## Testing
+Run the full test suite (Unit + Integration tests using Testcontainers):
+
+```bash
+./mvnw verify
+```
+
+## API Overview
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/v1/races/start` | Start a new race |
+| `POST` | `/api/v1/passages` | Record a kart passage (Async processing via RabbitMQ) |
+| `POST` | `/api/v1/races/{raceId}/finish` | Finish a race |
+| `GET` | `/api/v1/races/{raceId}/result` | Get race results (Winner, Fastest Lap) |
+
+## Key Assumptions & Architecture
+*   **Race Logic:** Fixed number of laps; winner is determined by completing all laps first. Fastest lap is also calculated.
+*   **Async Processing:** Passage recording is decoupled using RabbitMQ to ensure high throughput and reliability.
+*   **Data Model:** 
+    *   `Race`: Contains list of Karts.
+    *   `Kart`: Identified by kart number.
+    *   `Passage`: Time instant when a kart passes the sensor. This will allow us to calculate the laps
 
 
-## Data Diagram/ Objects domain:
-- Race
-  - list<kart>
-  - number_of_laps
-- kart
-  - id
-  - kart_number
-  - list<laps>
-- Lap
-  - start_time
-  - finish_time
-  - number_lap? > define this
-
-
-## Technical decisions:
-- Outbox pattern to receive Lap information for data consistency and reliability
-- HTTP calls for starting and finish a race
-- Given fast data input and for this example, decided to generate the ids by sequence
-- Command Query Responsibility Segregation (CQRS): segregate write from upsert operations since we want to achieve better results when fetching results and when upserting new
-- 
+## Disclaimer
+This project uses AI for code improvements, testing, and documentation improvements. Core architecture and data schema design are original.

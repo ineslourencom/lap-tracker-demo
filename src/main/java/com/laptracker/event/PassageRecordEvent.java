@@ -2,5 +2,5 @@ package com.laptracker.event;
 
 import java.time.LocalDateTime;
 
-public record LapRecordEvent(Integer kartNumber, LocalDateTime timestamp) {
+public record PassageRecordEvent(Integer kartNumber, LocalDateTime timestamp) {
 }

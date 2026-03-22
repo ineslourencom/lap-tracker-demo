@@ -1,5 +1,7 @@
 package com.laptracker.persistence.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,16 +12,16 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Data
 @Entity
 @Table(name = "passages")
 public class Passage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
     private Race race;
@@ -29,4 +31,9 @@ public class Passage {
 
     private LocalDateTime passageTime;
 
+    public Passage(Race race, Kart kart, LocalDateTime passageTime) {
+        this.race = race;
+        this.kart = kart;
+        this.passageTime = passageTime;
+    }
 }

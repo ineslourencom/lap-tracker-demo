@@ -2,8 +2,7 @@ spring:
   application:
   name: lap-tracker-service
   datasource:
-    url: jdbc:tc:postgresql:16-alpine:///lap_tracker_test
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    # url is overridden by BaseITTest
     hikari:
       maximum-pool-size: 3
       
@@ -15,4 +14,4 @@ spring:
         generate_statistics: true
 
   flyway:
-    enabled: false  # Let JPA handle schema in tests
+    enabled: false

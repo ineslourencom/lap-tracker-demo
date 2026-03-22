@@ -1,9 +1,14 @@
 package com.laptracker.persistence;
 
 import com.laptracker.persistence.entity.Passage;
+import com.laptracker.persistence.entity.Race;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.UUID;
+
 @Repository
-public interface PassageRepository extends JpaRepository<Passage, Long> {
+public interface PassageRepository extends JpaRepository<Passage, UUID> {
+    List<Passage> getPassagesByRace(Race race);
 }

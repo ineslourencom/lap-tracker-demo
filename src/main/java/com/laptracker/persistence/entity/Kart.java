@@ -1,31 +1,38 @@
 package com.laptracker.persistence.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "kart", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_kart_race", columnNames = {"kart_number", "race_id"})
-})
+@Table(name = "karts")
 public class Kart {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "kart_seq")
-    @SequenceGenerator(name = "kart_seq", sequenceName = "lap_sequence", allocationSize = 50)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "kart_number", nullable = false)
-    private String kartNumber;
+    private int kartNumber;
 
-    @Column(name = "race_id")
-    private Long raceId;
+    @ManyToOne
+    private Race race;
 
+    public Kart(int kartNumber, Race race) {
+        this.kartNumber = kartNumber;
+        this.race = race;
+    }
 }
+

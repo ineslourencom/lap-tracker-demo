@@ -1,31 +1,31 @@
 CREATE TABLE races
 (
-    id         BIGINT       NOT NULL,
+    id         UUID         NOT NULL,
     name       VARCHAR(255) NOT NULL,
-    started_at TIMESTAMP,
     total_laps INT          NOT NULL,
     status     VARCHAR(255),
     PRIMARY KEY (id)
 );
 
-CREATE TABLE laps
+CREATE TABLE karts
 (
-    id           BIGINT NOT NULL,
-    kart_id      BIGINT NOT NULL,
-    passage_time TIMESTAMP,
+    id          UUID   NOT NULL,
+    kart_number INT NOT NULL,
+    race_id     UUID,
     PRIMARY KEY (id)
 );
 
-CREATE TABLE karts
+CREATE TABLE passages
 (
-    id          BIGINT       NOT NULL,
-    kart_number BIGINT NOT NULL,
-    race_id     BIGINT,
+    id           UUID      NOT NULL,
+    race_id      UUID      NOT NULL,
+    kart_id      UUID      NOT NULL,
+    passage_time TIMESTAMP NOT NULL,
     PRIMARY KEY (id)
 );
 
 ALTER TABLE karts
     ADD CONSTRAINT fk_kart_race FOREIGN KEY (race_id) REFERENCES races (id);
 
-ALTER TABLE laps
-    ADD CONSTRAINT fk_lap_kart FOREIGN KEY (kart_id) REFERENCES karts (id);
+ALTER TABLE passages
+    ADD CONSTRAINT fk_passages_race FOREIGN KEY (race_id) REFERENCES races (id);

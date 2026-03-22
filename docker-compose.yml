@@ -8,8 +8,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/lap_tracker
       - SPRING_DATASOURCE_USERNAME=lap_tracker_user
       - SPRING_DATASOURCE_PASSWORD=lap_tracker_pass
+      - SPRING_RABBITMQ_HOST=rabbitmq
     depends_on:
       - db
+      - rabbitmq
   
   db:
     image: postgres:16-alpine
@@ -19,3 +21,13 @@ services:
       - POSTGRES_PASSWORD=lap_tracker_pass
     ports:
       - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+

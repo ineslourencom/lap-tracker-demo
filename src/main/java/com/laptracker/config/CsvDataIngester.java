@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DataSeeder implements CommandLineRunner {
+public class CsvDataIngester implements CommandLineRunner {
 
     private final RaceImportService raceImportService;
     private final RaceRepository raceRepository;

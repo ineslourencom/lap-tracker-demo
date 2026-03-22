@@ -10,17 +10,17 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DataSeederIT extends BaseITTest {
+public class CsvDataIngesterIT extends BaseITTest {
 
     @Autowired
     private RaceRepository raceRepository;
 
     @Test
     void shouldSeedDataOnStartup() {
-        // When the application context starts (which happens before this test method),
-        // DataSeeder should have run and imported the race from the CSV.
+        //when
+        //app starts + data init
 
-        // Then
+        // then
         List<Race> races = raceRepository.findAll();
         assertThat(races).isNotEmpty();
 

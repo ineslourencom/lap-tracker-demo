@@ -1,4 +1,4 @@
-package com.laptracker.api.dto.request;
+package com.laptracker.api.model.request;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -24,19 +24,19 @@ class StartRaceRequestTest {
 
     @Test
     void shouldPassValidation_whenRequestIsValid() {
-        StartRaceRequest request = new StartRaceRequest("Grand Prix", 10, List.of("1", "2"));
+        StartRaceRequest request = new StartRaceRequest("Grand Prix", 10, List.of(1, 2));
         assertTrue(validator.validate(request).isEmpty());
     }
 
     @Test
     void shouldFailValidation_whenNameIsBlank() {
-        StartRaceRequest request = new StartRaceRequest("", 10, List.of("1", "2"));
+        StartRaceRequest request = new StartRaceRequest("", 10, List.of(1, 2));
         assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
     void shouldFailValidation_whenTotalLapsIsZero() {
-        StartRaceRequest request = new StartRaceRequest("Grand Prix", 0, List.of("1", "2"));
+        StartRaceRequest request = new StartRaceRequest("Grand Prix", 0, List.of(1, 2));
         assertFalse(validator.validate(request).isEmpty());
     }
 
@@ -47,14 +47,14 @@ class StartRaceRequestTest {
     }
 
     @Test
-    void shouldFailValidation_whenKartNumberIsBlank() {
-        StartRaceRequest request = new StartRaceRequest("Grand Prix", 10, List.of(""));
+    void shouldFailValidation_whenKartNumberIsNull() {
+        StartRaceRequest request = new StartRaceRequest("Grand Prix", 10, List.of());
         assertFalse(validator.validate(request).isEmpty());
     }
 
     @Test
     void shouldFailValidation_whenTotalLapsIsNull() {
-        StartRaceRequest request = new StartRaceRequest("Grand Prix", null, List.of("1", "2"));
+        StartRaceRequest request = new StartRaceRequest("Grand Prix", null, List.of(1, 2));
         assertFalse(validator.validate(request).isEmpty());
     }
 }

@@ -13,13 +13,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class LapRecordApplicationServiceTest {
+class PassageApplicationServiceTest {
 
     @Mock
     private RaceService raceService;
@@ -31,7 +32,7 @@ class LapRecordApplicationServiceTest {
     private PassageService passageService;
 
     @InjectMocks
-    private LapRecordApplicationService lapRecordApplicationService;
+    private PassageApplicationService passageApplicationService;
 
     @Test
     void recordLap_shouldRecordPassage() {
@@ -39,15 +40,15 @@ class LapRecordApplicationServiceTest {
         Integer kartNumber = 1;
         LocalDateTime timestamp = LocalDateTime.now();
         Race activeRace = new Race();
-        activeRace.setId(1L);
+        activeRace.setId(UUID.randomUUID());
         Kart kart = new Kart();
-        kart.setId(1L);
+        kart.setId(UUID.randomUUID());
 
         when(raceService.getActiveRace()).thenReturn(activeRace);
         when(kartService.findKartByNumberAndRaceId(eq(kartNumber), eq(activeRace.getId()))).thenReturn(Optional.of(kart));
 
         // when
-        lapRecordApplicationService.recordLap(kartNumber, timestamp);
+        passageApplicationService.recordPassage(kartNumber, timestamp);
 
         // then
         verify(passageService).recordPassage(kart, activeRace, timestamp);

@@ -1,14 +1,15 @@
-package com.laptracker.api.dto.response;
+package com.laptracker.api.model.response;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class RaceResultResponse {
-    private String raceName;
-    private String kartNumber; // Renamed from winnerKartNumber to match test expectation getKartNumber()
+    private int winnerKart;
     private LapDetailResponse fastestLap;
-    private List<String> kartParticipants;
 }

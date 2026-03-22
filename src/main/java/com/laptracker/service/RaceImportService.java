@@ -1,12 +1,11 @@
 package com.laptracker.service;
 
 import com.laptracker.persistence.entity.Kart;
-import com.laptracker.persistence.entity.Lap;
 import com.laptracker.persistence.entity.Race;
 import com.laptracker.persistence.entity.RaceStatus;
-import com.laptracker.persistence.KartRepository;
-import com.laptracker.persistence.LapRepository;
 import com.laptracker.persistence.RaceRepository;
+import com.laptracker.service.domain.KartService;
+import com.laptracker.service.domain.PassageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,30 +29,58 @@ import java.util.stream.Collectors;
 public class RaceImportService {
 
     private final RaceRepository raceRepository;
-    private final KartRepository kartRepository;
-    private final LapRepository lapRepository;
-
+    private final KartService kartService;
+    private final PassageService passageService;
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    public Race importRace(InputStream inputStream) throws IOException {
-        List<String[]> records = readCsv(inputStream);
+    @Transactional
+    public Race importRace() throws IOException {
+        try (InputStream inputStream = getClass().getResourceAsStream("/karttimes.csv")) {
+            if (inputStream == null) {
+                throw new IOException("Resource not found: /karttimes.csv");
+            }
+            List<String[]> records = readCsv(inputStream);
 
-        LocalDateTime raceStartTime = findRaceStartTime(records);
-        Race race = createRace(raceStartTime);
+            List<String[]> dataRecords = records.stream()
+                    .filter(record -> !record[0].equalsIgnoreCase("kart"))
+                    .collect(Collectors.toList());
 
-        Map<Integer, List<LocalTime>> timesByKart = groupTimesByKart(records);
+            if (dataRecords.isEmpty()) {
+                throw new IllegalArgumentException("CSV file is empty or contains only header");
+            }
 
-        for (Map.Entry<Integer, List<LocalTime>> entry : timesByKart.entrySet()) {
-            Integer kartNumber = entry.getKey();
-            List<LocalTime> passingTimes = entry.getValue();
-            passingTimes.sort(Comparator.naturalOrder());
+            LocalDateTime raceStartTime = findRaceStartTime(dataRecords);
 
-            Kart kart = createKart(race, kartNumber);
+            Map<Integer, List<LocalTime>> timesByKart = groupTimesByKart(dataRecords);
 
-            createLapsForKart(race, kart, raceStartTime, passingTimes);
+            // calculate total laps as max passages - 1
+            int maxPassages = timesByKart.values().stream()
+                    .mapToInt(List::size)
+                    .max()
+                    .orElse(0);
+            int totalLaps = Math.max(0, maxPassages - 1);
+
+            Race race = createRace(raceStartTime, totalLaps);
+
+            // create karts
+            Set<Integer> kartNumbers = timesByKart.keySet();
+            Map<Integer, Kart> karts = kartNumbers.stream()
+                    .collect(Collectors.toMap(
+                            kartNumber -> kartNumber,
+                            kartNumber -> kartService.createKart(kartNumber, race)
+                    ));
+
+            // create passages
+            for (String[] record : dataRecords) {
+                Integer kartNumber = Integer.parseInt(record[0]);
+                LocalTime time = LocalTime.parse(record[1], TIME_FORMATTER);
+                LocalDateTime timestamp = LocalDateTime.of(LocalDate.now(), time);
+
+                Kart kart = karts.get(kartNumber);
+                passageService.recordPassage(kart, race, timestamp);
+            }
+            return race;
         }
-
-        return race;
     }
 
     private List<String[]> readCsv(InputStream inputStream) throws IOException {
@@ -72,13 +99,8 @@ public class RaceImportService {
                 .orElseThrow(() -> new IllegalArgumentException("Cannot determine race start time from empty CSV"));
     }
 
-
-    private Race createRace(LocalDateTime startTime) {
-        Race race = new Race();
-        race.setRaceName("Imported Race " + LocalDateTime.now());
-        race.setRaceTime(startTime);
-        race.setTotalLaps(0L);
-        race.setStatus(RaceStatus.FINISHED);
+    private Race createRace(LocalDateTime startTime, Integer totalLaps) {
+        Race race = new Race("Imported Race " + LocalDateTime.now(), totalLaps, RaceStatus.FINISHED, startTime);
         return raceRepository.save(race);
     }
 
@@ -88,29 +110,5 @@ public class RaceImportService {
                         record -> Integer.parseInt(record[0]),
                         Collectors.mapping(record -> LocalTime.parse(record[1], TIME_FORMATTER), Collectors.toList())
                 ));
-    }
-
-    private Kart createKart(Race race, Integer kartNumber) {
-        Kart kart = new Kart();
-        kart.setRace(race);
-        kart.setKartNumber(kartNumber);
-        return kartRepository.save(kart);
-    }
-
-    private void createLapsForKart(Race race, Kart kart, LocalDateTime raceStartTime, List<LocalTime> passingTimes) {
-        List<LocalDateTime> orderedPassingDateTimes = passingTimes.stream()
-                .map(time -> LocalDateTime.of(raceStartTime.toLocalDate(), time))
-                .collect(Collectors.toList());
-
-
-        for (int i = 0; i < orderedPassingDateTimes.size() - 1; i++) {
-            Lap lap = new Lap();
-            lap.setRace(race);
-            lap.setKart(kart);
-            lap.setLapNumber(i + 1);
-            lap.setStartTime(orderedPassingDateTimes.get(i));
-            lap.setFinishTime(orderedPassingDateTimes.get(i + 1));
-            lapRepository.save(lap);
-        }
     }
 }

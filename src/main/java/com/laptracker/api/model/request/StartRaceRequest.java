@@ -1,4 +1,4 @@
-package com.laptracker.api.dto.request;
+package com.laptracker.api.model.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -16,6 +16,5 @@ public record StartRaceRequest(
         @Max(value = 200, message = "Maximum number of allowed laps is 200 ")
         Integer totalLaps,
         @NotEmpty(message = "At least one kart number is required")
-        List<@NotBlank(message = "Kart number cannot be blank") String> kartNumbers
+        List<@NotNull(message = "Kart number cannot be null") Integer> kartNumbers
 ) {}
-

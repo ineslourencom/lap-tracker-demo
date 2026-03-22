@@ -1,4 +1,6 @@
 package com.laptracker.api.model.response;
 
-public class TotalRaceResult {
+import java.time.Duration;
+
+public record TotalRaceResult(Duration totalDuration, int lapCount) {
 }
