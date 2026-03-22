@@ -1,0 +1,18 @@
+spring:
+  application:
+  name: lap-tracker-service
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///lap_tracker_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    hikari:
+      maximum-pool-size: 3
+      
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        generate_statistics: true
+
+  flyway:
+    enabled: false  # Let JPA handle schema in tests

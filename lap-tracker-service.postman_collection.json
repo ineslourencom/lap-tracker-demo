@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "lap-tracker-service-collection",
+		"name": "Lap Tracker Service",
+		"description": "Collection for Lap Tracker Service API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Races",
+			"item": [
+				{
+					"name": "Start Race",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Grand Prix 2024\",\n  \"totalLaps\": 10,\n  \"kartNumbers\": [1, 2, 3, 4, 5]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/races",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"races"
+							]
+						},
+						"description": "Starts a new race with the given configuration."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Race",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/races/active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"races",
+								"active"
+							]
+						},
+						"description": "Retrieves the ID of the currently active race."
+					},
+					"response": []
+				},
+				{
+					"name": "Finish Race",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/races/:raceId/finish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"races",
+								":raceId",
+								"finish"
+							],
+							"variable": [
+								{
+									"key": "raceId",
+									"value": "{{raceId}}",
+									"description": "UUID of the race to finish"
+								}
+							]
+						},
+						"description": "Manually finishes an active race."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Race Results",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/races/:raceId/results",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"races",
+								":raceId",
+								"results"
+							],
+							"variable": [
+								{
+									"key": "raceId",
+									"value": "{{raceId}}",
+									"description": "UUID of the race"
+								}
+							]
+						},
+						"description": "Retrieves the current results for a specific race."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Passages",
+			"item": [
+				{
+					"name": "Record Passage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kartNumber\": 1,\n  \"timestamp\": \"2024-03-22T10:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/passages/record",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"passages",
+								"record"
+							]
+						},
+						"description": "Records a passage event for a kart."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "raceId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/lap_tracker
+      - SPRING_DATASOURCE_USERNAME=lap_tracker_user
+      - SPRING_DATASOURCE_PASSWORD=lap_tracker_pass
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=lap_tracker
+      - POSTGRES_USER=lap_tracker_user
+      - POSTGRES_PASSWORD=lap_tracker_pass
+    ports:
+      - "5432:5432"
